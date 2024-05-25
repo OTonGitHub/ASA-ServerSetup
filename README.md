@@ -59,13 +59,13 @@ ${{\color{Goldenrod}\small{\textsf{
 If for any reason, maybe you cancel the download or the process is interrupted etc, you might want to restart
 }}}}$ </br>
 ${{\color{Goldenrod}\small{\textsf{
-by deleting the `ASA-SingleEntryPoint` directory and starting over, if for any reason, maybe you cancel the download
+by deleting the ASA-SingleEntryPoint directory and starting over, if for any reason, maybe you cancel the download
 }}}}$ </br>
 ${{\color{Goldenrod}\small{\textsf{
 or the process is interrupted etc. BUT, only do this at this point, do not delete the directory later on if you
 }}}}$ </br>
 ${{\color{Goldenrod}\small{\textsf{
-have succesfully installed `SteamCMD` using the above instructions.
+have succesfully installed SteamCMD using the above instructions.
 }}}}$
 
 - `Remove-Item -Path C:\ASA-SingleEntryPoint -Recurse -Force`
