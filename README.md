@@ -30,7 +30,27 @@ everything that will be installed or persisted will be to the following director
 - type `SConfig` into the shell and press enter.
 - follow the on-screen instructions to update the server
 
+#### Installing OpenSSH Server
+
+> This is required because, in the case, and we do use a script that needs interaction,
+> using `Enter-PSSession` remotely will not allow this.
+
+> Furhtermore, having `ssh` allows us to use SCP to copy the files to the server, but I will
+> show the other method of using Enter-PSSession with Copy-Item from powershell as well.
+
+- `Enter-PSSession -ComputerName <your_server_ip_address> -Credential (Get-Credential)`
+- use this command to check installation status of openSSH on the server
+- `Get-WindowsCapability -Online | Where-Object Name -like 'OpenSSH\*'`
+- install `Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0`
+- `Start-Service sshd`
+- `Set-Service -Name sshd -StartupType 'Automatic'`
+- Set Firewall Rule:
+  - `if (!(Get-NetFirewallRule -Name "OpenSSH-Server-In-TCP" -ErrorAction SilentlyContinue | Select-Object Name, Enabled)) { Write-Output "Firewall Rule 'OpenSSH-Server-In-TCP' does not exist, creating it..."; New-NetFirewallRule -Name 'OpenSSH-Server-In-TCP' -DisplayName 'OpenSSH Server (sshd)' -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22 } else { Write-Output "Firewall rule 'OpenSSH-Server-In-TCP' has been created and exists." }`
+- check if firewall configured
+- `Get-NetFirewallRule -Direction Inbound | Where-Object { $_.DisplayName -like '*ssh*' }`
+
 #### Installing SteamCMD
+
 **The `Install-SteamCMD.ps1` script mostly code from the `SteamPS` project, taken from `WinGet` website, under fair use,
 I have kept credit even in the script itself**
 
@@ -42,20 +62,32 @@ I have kept credit even in the script itself**
 - `curl -O https://raw.githubusercontent.com/OTonGitHub/ASA-ServerSetup/main/Install-SteamCMD.ps1`
   I will not be held responsible for any issues caused from the code, go through it on your own!
 - then copy this file to the server, to do this, use the following commands.
+
+#### Create Directory Remotely
+
 - `$Session = New-PSSession -ComputerName <your_server_ip_address> -Credential (Get-Credential)`
 - use `Get-PSSession` to make sure the session is open.
 - create directory before copying.
 - `Invoke-Command -Session $Session -ScriptBlock { New-Item -ItemType Directory -Path "C:\ASA-SingleEntryPoint" }`
-- now copy.
-- `Copy-Item "Install-SteamCMD.ps1" -Destination "C:\ASA-SingleEntryPoint" -ToSession $Session`
-- cleanup.
-- `Remove-PSSession -Session $SESSION`
-- `rm Install-SteamCMD.ps1`
+- #### PSSession Session Method
+  - assuming still in the same shell session from last command.
+  - `Copy-Item "Install-SteamCMD.ps1" -Destination "C:\ASA-SingleEntryPoint" -ToSession $Session`
+  - cleanup.
+  - `Remove-PSSession -Session $SESSION`
+  - `rm Install-SteamCMD.ps1`
+- #### Using SCP (If Installed OpenSSH)
+  - `scp .\Install-SteamCMD.ps1 Administrator@<your_server_ip_address>:C:\ASA-SingleEntryPoint\`
 
-Now that the file is copied, hopefully without any errors, we can use the shell to directly open a connection to the
-server to continue the rest of the setup.
+**Now that the file is copied, hopefully without any errors, we can use the shell to directly open a connection to the
+server to continue the rest of the setup.**
 
-- `Enter-PSSession -ComputerName <your_server_ip_address> -Credential (Get-Credential)`.
+- If you decide to use OpenSSH, run
+  - `ssh Administrator@<your_server_ip_address>`
+  - `powershell`
+    - don't add `powershell` at the end of `ssh` command.
+- Else If you otherwise would like to avoid using OpenSSh, Then
+  - modify script to remove interactive parts of the code, then run
+  - `Enter-PSSession -ComputerName <your_server_ip_address> -Credential (Get-Credential)`.
 - `cd C:\ASA-SingleEntryPoint`
 - `powershell -NoProfile -ExecutionPolicy Bypass -File "Install-SteamCMD.ps1"`
 - script is safe to re-run, follow on-screen instructions.
@@ -73,11 +105,18 @@ or the process is interrupted etc. BUT, only do this at this point, do not delet
 }}}}$ </br>
 ${{\color{Goldenrod}\normalsize{\textsf{
 have succesfully installed SteamCMD using the above instructions.
-}}}}$
+}}}}$ <!-- yea this is stupid -->
 
 - `Remove-Item -Path C:\ASA-SingleEntryPoint -Recurse -Force`
 - then just re-do everything from above.
 - only thing this does-not undo is removing the steamcmd.exe path from the env path.
+
+#### Uninstall SSH and Remove Firewall Rule
+
+- `Stop-Service sshd`
+- `Set-Service -Name sshd -StartupType 'Disabled'`
+- `Remove-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0`
+- `Remove-NetFirewallRule -Name 'OpenSSH-Server-In-TCP'`
 
 #### Using SteamCMD - Initial Setup
 
