@@ -77,3 +77,4 @@ have succesfully installed SteamCMD using the above instructions.
 > Client (exit and re-open powershell, then follow below)
 
 - first try running `steamcmd` to make sure it's installed and working properly.
+- rest will be updated in the next few days..
