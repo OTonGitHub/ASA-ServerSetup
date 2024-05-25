@@ -31,6 +31,8 @@ everything that will be installed or persisted will be to the following director
 - follow the on-screen instructions to update the server
 
 #### Installing SteamCMD
+**The `Install-SteamCMD.ps1` script mostly code from the `SteamPS` project, taken from `WinGet` website, under fair use,
+I have kept credit even in the script itself**
 
 > Client (exit and re-open powershell, then follow below)
 
