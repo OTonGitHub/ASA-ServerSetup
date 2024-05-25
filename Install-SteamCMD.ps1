@@ -132,7 +132,7 @@ function Install-SteamCMD {
             exit
         }
 
-        if ($Force -or $PSCmdlet.ShouldContinue('Would you like to continue?', 'Install SteamCMD')) {
+        if ($Force -or -not $PSCmdlet.ShouldContinue('Would you like to continue?', 'Install SteamCMD')) {
             # Ensures that SteamCMD is installed in a folder named SteamCMD.
             $InstallPath = $InstallPath + '\SteamCMD'
 

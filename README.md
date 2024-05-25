@@ -19,6 +19,8 @@
 > to SSH or Enter-PSSession into the server to run the following commands,
 > so all the commandlets are preceded with weather they are run on client or directly on the server._
 
+if at any point a restart is required, use `Restart-Computer` to restart the server.
+
 everything that will be installed or persisted will be to the following directory
 
 - `C:\ASA-SingleEntryPoint`
@@ -40,6 +42,8 @@ _DON'T INSTALL OPENSSH IF YOU RATHER MODIFY SCRIPT TO DISABLE INTERACTIVITY_
 > show the other method of using Enter-PSSession with Copy-Item from powershell as well.
 
 - `Enter-PSSession -ComputerName <your_server_ip_address> -Credential (Get-Credential)`
+- check if in admin role
+- `([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)`
 - use this command to check installation status of openSSH on the server
 - `Get-WindowsCapability -Online | Where-Object Name -like 'OpenSSH\*'`
 - install `Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0`
