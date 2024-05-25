@@ -56,6 +56,10 @@ server to continue the rest of the setup.
 - and it should add the correct .exe file to the env, you can call `steamcmd` from the server shell now.
 
 ${{\color{Goldenrod}\small{\textsf{
+If for any reason, maybe you cancel the download or the process is interrupted etc, you might want to restart by deleting the ASA-SingleEntryPoint directory and starting over, if for any reason, maybe you cancel the download or the process is interrupted etc. BUT, only do this at this point, do not delete the directory later on if you have succesfully installed SteamCMD using the above instructions.
+}}}}$ </br>
+
+${{\color{Goldenrod}\small{\textsf{
 If for any reason, maybe you cancel the download or the process is interrupted etc, you might want to restart
 }}}}$ </br>
 ${{\color{Goldenrod}\small{\textsf{
