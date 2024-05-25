@@ -44,8 +44,9 @@ I have kept credit even in the script itself**
 - then copy this file to the server, to do this, use the following commands.
 - `$Session = New-PSSession -ComputerName <your_server_ip_address> -Credential (Get-Credential)`
 - use `Get-PSSession` to make sure the session is open.
-- `Copy-Item "C:\D:\path\to\Install-SteamCMD.ps1" -Destination "C:\ASA-SingleEntryPoint" -ToSession $Session`
+- `Copy-Item "Install-SteamCMD.ps1" -Destination "C:\ASA-SingleEntryPoint" -ToSession $Session`
 - `Remove-PSSession -Session $SESSION`
+- `rm Install-SteamCMD.ps1`
 
 Now that the file is copied, hopefully without any errors, we can use the shell to directly open a connection to the
 server to continue the rest of the setup.
