@@ -80,8 +80,8 @@ function Install-SteamCMD {
     Install SteamCMD.
 
     .DESCRIPTION
-    This cmdlet downloads SteamCMD and configures it in a custom or
-    predefined location (C:\Program Files\SteamCMD).
+    This cmdlet/(function now) downloads SteamCMD and configures it in a custom or
+    predefined location (C:\ASA-SingleEntryPoint).
 
     .PARAMETER InstallPath
     Specifiy the install location of SteamCMD.
@@ -92,12 +92,12 @@ function Install-SteamCMD {
     .EXAMPLE
     Install-SteamCMD
 
-    Installs SteamCMD in C:\Program Files\SteamCMD.
+    Installs SteamCMD in C:\ASA-SingleEntryPoint.
 
     .EXAMPLE
-    Install-SteamCMD -InstallPath 'C:'
-
-    Installs SteamCMD in C:\SteamCMD.
+    Applies if using as a cmdlet on shell.
+        Install-SteamCMD -InstallPath 'C:'
+            Installs SteamCMD in C:\SteamCMD.
 
     .NOTES
     Original Author: Frederik Hjorslev Poulsen,
