@@ -44,7 +44,11 @@ I have kept credit even in the script itself**
 - then copy this file to the server, to do this, use the following commands.
 - `$Session = New-PSSession -ComputerName <your_server_ip_address> -Credential (Get-Credential)`
 - use `Get-PSSession` to make sure the session is open.
+- create directory before copying.
+- `Invoke-Command -Session $Session -ScriptBlock { New-Item -ItemType Directory -Path "C:\ASA-SingleEntryPoint" }`
+- now copy.
 - `Copy-Item "Install-SteamCMD.ps1" -Destination "C:\ASA-SingleEntryPoint" -ToSession $Session`
+- cleanup.
 - `Remove-PSSession -Session $SESSION`
 - `rm Install-SteamCMD.ps1`
 
