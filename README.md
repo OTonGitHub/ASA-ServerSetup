@@ -32,10 +32,11 @@ everything that will be installed or persisted will be to the following director
 
 #### Installing OpenSSH Server
 
-> This is required because, in the case, and we do use a script that needs interaction,
-> using `Enter-PSSession` remotely will not allow this.
+_DON'T INSTALL OPENSSH IF YOU RATHER MODIFY SCRIPT TO DISABLE INTERACTIVITY_
 
-> Furhtermore, having `ssh` allows us to use SCP to copy the files to the server, but I will
+> Again, not required but, in the case, and we do use a script that needs interaction,
+> using `Enter-PSSession` remotely will not allow this.
+> Furhtermore, having `ssh` allows us to use `SCP` to copy the files to the server, but I will
 > show the other method of using Enter-PSSession with Copy-Item from powershell as well.
 
 - `Enter-PSSession -ComputerName <your_server_ip_address> -Credential (Get-Credential)`
