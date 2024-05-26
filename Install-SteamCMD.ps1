@@ -18,6 +18,8 @@ function Add-EnvPath {
     )
 
     process {
+        $VerbosePreference = 'Continue'
+
         Write-Verbose -Message "Container is set to: $Container"
         $Path = $Path.Trim()
 
@@ -36,6 +38,7 @@ function Add-EnvPath {
             # no need to filter again here
             $persistedPaths = ($persistedPaths + $Path) -join [System.IO.Path]::PathSeparator
             [Environment]::SetEnvironmentVariable('Path', $persistedPaths, $containerType)
+            $env:Path += '$Path'
 
             Write-Verbose -Message "Adding $Path to environment path."
         } else {
@@ -44,7 +47,7 @@ function Add-EnvPath {
     } # Process
 } # Cmdlet
 
-function Get-SteamPath {
+function Get-SteamCMDPath {
     <#
     .SYNOPSIS
     Find SteamCMD Install Path.
@@ -58,20 +61,31 @@ function Get-SteamPath {
     #>
 
     [CmdletBinding()]
-    param (
-    )
+    param ()
 
     process {
-        $SteamCMDPath = $env:Path.Split(';') | Where-Object -FilterScript { $_ -like "*SteamCMD*" }
-        if ($null -ne $SteamCMDPath) {
-            $ObjectProperties = [ordered]@{
-                'Path'       = $SteamCMDPath;
-                'Executable' = "$($SteamCMDPath)\steamcmd.exe";
-            }
+        $VerbosePreference = 'Continue'
 
-            New-Object -TypeName PSObject -Property $ObjectProperties
-        } # if
-    } # Process
+        $SteamCMDPaths = $env:Path.Split(';') | Where-Object { $_ -like "*SteamCMD*" }
+        $Result = @()
+    
+        foreach ($SteamCMDPath in $SteamCMDPaths) {
+            if ($null -ne $SteamCMDPath) {
+                $ObjectProperties = [ordered]@{
+                    'Path'       = $SteamCMDPath
+                    'Executable' = Join-Path -Path $SteamCMDPath -ChildPath 'steamcmd.exe'
+                }
+                $Result += [PSCustomObject]$ObjectProperties
+            }
+        }
+    
+        if ($Result.Count -gt 0) {
+            return $Result
+        } else {
+            Write-Host "No SteamCMD path found in the environment PATH variable."
+            return $null
+        }
+    } # process
 } # Cmdlet
 
 function Install-SteamCMD {
@@ -121,10 +135,12 @@ function Install-SteamCMD {
         [string]$InstallPath = "C:\ASA-SingleEntryPoint",
 
         [Parameter(Mandatory = $false)]
-        [switch]$Force
+        [switch]$Force = $true
     )
 
     process {
+        $VerbosePreference = 'Continue'
+
         # Check for administrative privileges
         if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
             Write-Warning "You do not have Administrator rights to run this script!`nPlease re-run this script as an Administrator."
@@ -132,15 +148,46 @@ function Install-SteamCMD {
             exit
         }
 
-        if ($Force -or -not $PSCmdlet.ShouldContinue('Would you like to continue?', 'Install SteamCMD')) {
+        if ($Force -or $PSCmdlet.ShouldContinue('Would you like to continue?', 'Install SteamCMD')) {
             # Ensures that SteamCMD is installed in a folder named SteamCMD.
             $InstallPath = $InstallPath + '\SteamCMD'
 
-            if (-not ((Get-SteamPath).Path -eq $InstallPath)) {
+            # OT Handling Multiple Previous Installed Locations Added To Path
+            $SteamPaths = Get-SteamCMDPath
+            $PathExists = $false
+            # Check if there are any SteamCMD paths
+            if ($null -eq $SteamPaths) {
                 Write-Verbose -Message "Adding $($InstallPath) to Environment Variable PATH."
                 Add-EnvPath -Path $InstallPath -Container Machine
-            } else {
-                Write-Verbose -Message "Path $((Get-SteamPath).Path) already exists."
+            } 
+            else 
+            {
+                Write-Output "`n HIT: 2";
+                foreach ($Item in $SteamPaths) {
+                    if ($Item.Path -ne $InstallPath) {
+                        Write-Host "Removing path: $($Item.Path)"
+                        # $envPathList = $env:Path -split ';' | Where-Object { $_ -ne $Item.Path }
+                        $Targets = @(
+                            [System.EnvironmentVariableTarget]::Machine,
+                            [System.EnvironmentVariableTarget]::User
+                        )
+                        $envPath = ""
+                        foreach ($Target in $Targets) {
+                            $path = [Environment]::GetEnvironmentVariable('Path', $Target) -split ';' | Where-Object { $_ -ne $PathToRemove }
+                            $envPath += ($path -join ';')
+                            [Environment]::SetEnvironmentVariable('Path', $env:Path, $Target)
+                        }
+                        $env:Path = $envPath                        
+                    } else {
+                        $PathExists = $true
+                        Write-Host "Keeping path: $($Item.Path)"
+                    }
+                }
+                if (-not $PathExists) {
+                    Write-Output "`n HIT PATHS EXIST BUT NOT EXIST";
+                    Write-Verbose -Message "Adding $($InstallPath) to Environment Variable PATH."
+                    Add-EnvPath -Path $InstallPath -Container Machine
+                }
             }
 
             $TempDirectory = 'C:\TempForSteamCMDInstallation'
@@ -178,9 +225,10 @@ function Install-SteamCMD {
             Remove-Item -Path "$($TempDirectory)" -Recurse -Force
                 # OT: changes as avoids using windows default temp directory.
             # Remove-Item -Path "$($TempDirectory)\steamcmd.zip" -Force
+            Write-Output "`n"; Write-Verbose -Message "Temp Directory Removed.." -Verbose
         }
 
-        if (Test-Path -Path (Get-SteamPath).Executable) {
+        if (Test-Path -Path (Get-SteamCMDPath).Executable) {
             Write-Output -InputObject "SteamCMD is now installed. Please close/open your PowerShell host."
         }
     } # End

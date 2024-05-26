@@ -25,6 +25,8 @@ everything that will be installed or persisted will be to the following director
 
 - `C:\ASA-SingleEntryPoint`
 
+- use `$env:Path` on Powershell to check environment variables.
+
 #### Update Windows Server Core
 
 > Run directly on the server, as both SSH & Remote PS Sessions for running this command gets rejected by windows.
