@@ -38,7 +38,7 @@ function Add-EnvPath {
             # no need to filter again here
             $persistedPaths = ($persistedPaths + $Path) -join [System.IO.Path]::PathSeparator
             [Environment]::SetEnvironmentVariable('Path', $persistedPaths, $containerType)
-            $env:Path += '$Path'
+            $env:Path += ';$Path'
 
             Write-Verbose -Message "Adding $Path to environment path."
         } else {
@@ -162,7 +162,6 @@ function Install-SteamCMD {
             } 
             else 
             {
-                Write-Output "`n HIT: 2";
                 foreach ($Item in $SteamPaths) {
                     if ($Item.Path -ne $InstallPath) {
                         Write-Host "Removing path: $($Item.Path)"
@@ -184,7 +183,6 @@ function Install-SteamCMD {
                     }
                 }
                 if (-not $PathExists) {
-                    Write-Output "`n HIT PATHS EXIST BUT NOT EXIST";
                     Write-Verbose -Message "Adding $($InstallPath) to Environment Variable PATH."
                     Add-EnvPath -Path $InstallPath -Container Machine
                 }
@@ -223,13 +221,12 @@ function Install-SteamCMD {
     end {
         if (Test-Path -Path "$($TempDirectory)\steamcmd.zip") {
             Remove-Item -Path "$($TempDirectory)" -Recurse -Force
-                # OT: changes as avoids using windows default temp directory.
-            # Remove-Item -Path "$($TempDirectory)\steamcmd.zip" -Force
-            Write-Output "`n"; Write-Verbose -Message "Temp Directory Removed.." -Verbose
+            Write-Host ""; Write-Verbose -Message "Temp Directory Removed.." -Verbose
         }
 
         if (Test-Path -Path (Get-SteamCMDPath).Executable) {
             Write-Output -InputObject "SteamCMD is now installed. Please close/open your PowerShell host."
+            Write-Output "`n"; 
         }
     } # End
 } # Cmdlet
